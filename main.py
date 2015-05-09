@@ -16,7 +16,7 @@ if method == '1':
     startTime = time.time()
     for url in urls:
         openURL(url, rss)
-    findGeo(rss, vocab,results)
+    findGeo(rss, vocab, results)
 if method == '2':
     startTime = time.time()
     coroutine = []

@@ -1,23 +1,32 @@
 # -*- coding: utf-8 -*-
 
-import urllib2, time, email.utils
+import urllib2
+import time
+import email.utils
 from xml.dom.minidom import *
+
 
 def findGeo(rss, vocab, results):
     for chanel in rss:
         xml = parseString(chanel)
         items = xml.getElementsByTagName("item")
         for item in items:
-            if isLastDay(item.getElementsByTagName("pubDate")[0].childNodes[0].nodeValue):
-                title = item.getElementsByTagName("title")[0].childNodes[0].nodeValue
+            checkedTime = item \
+                .getElementsByTagName("pubDate")[0] \
+                .childNodes[0].nodeValue
+            if isLastDay(checkedTime):
+                title = item \
+                    .getElementsByTagName("title")[0] \
+                    .childNodes[0].nodeValue
                 for city in vocab:
                     if city in title:
                         key = str(transliterate(city))
                         if key in results:
-                            count = results[key]+1
+                            count = results[key] + 1
                         else:
                             count = 1
                         results.update({key: count})
+
 
 # Відкриває XML-файл і повертає список текстових значень.
 def getLinks(filename, tag):
@@ -31,6 +40,7 @@ def getLinks(filename, tag):
         ret.append(url.childNodes[0].nodeValue)
     return ret
 
+
 # Відкриває отриману URL і повертає її вміст.
 def openURL(url, rss):
     try:
@@ -40,6 +50,7 @@ def openURL(url, rss):
     except:
         html = "Error URL"
     rss.append(html)
+
 
 # Записує у файл в форматі XML вміст списку.
 def writeCityToXml(file, list):
@@ -59,11 +70,13 @@ def writeCityToXml(file, list):
         top.appendChild(elements)
     doc.writexml(file)
 
+
 def isLastDay(checkedTime):
-    return time.time() - time.mktime(email.utils.parsedate(checkedTime)) <= 24 * 3600
+    return time.time() - \
+        time.mktime(email.utils.parsedate(checkedTime)) <= 24 * 3600
+
 
 def transliterate(string):
-
     capital_letters = {u'А': u'A',
                        u'Б': u'B',
                        u'В': u'V',
@@ -95,40 +108,40 @@ def transliterate(string):
                        u'Щ': u'Sch',
                        u'Ь': u'',
                        u'Ю': u'Yu',
-                       u'Я': u'Ya',}
+                       u'Я': u'Ya'}
 
     lower_case_letters = {u'а': u'a',
-                       u'б': u'b',
-                       u'в': u'v',
-                       u'г': u'g',
-                       u'д': u'd',
-                       u'е': u'e',
-                       u'є': u'e',
-                       u'ж': u'zh',
-                       u'з': u'z',
-                       u'и': u'y',
-                       u'і': u'i',
-                       u'ї': u'i',
-                       u'й': u'y',
-                       u'к': u'k',
-                       u'л': u'l',
-                       u'м': u'm',
-                       u'н': u'n',
-                       u'о': u'o',
-                       u'п': u'p',
-                       u'р': u'r',
-                       u'с': u's',
-                       u'т': u't',
-                       u'у': u'u',
-                       u'ф': u'f',
-                       u'х': u'h',
-                       u'ц': u'ts',
-                       u'ч': u'ch',
-                       u'ш': u'sh',
-                       u'щ': u'sch',
-                       u'ь': u'',
-                       u'ю': u'yu',
-                       u'я': u'ya',}
+                          u'б': u'b',
+                          u'в': u'v',
+                          u'г': u'g',
+                          u'д': u'd',
+                          u'е': u'e',
+                          u'є': u'e',
+                          u'ж': u'zh',
+                          u'з': u'z',
+                          u'и': u'y',
+                          u'і': u'i',
+                          u'ї': u'i',
+                          u'й': u'y',
+                          u'к': u'k',
+                          u'л': u'l',
+                          u'м': u'm',
+                          u'н': u'n',
+                          u'о': u'o',
+                          u'п': u'p',
+                          u'р': u'r',
+                          u'с': u's',
+                          u'т': u't',
+                          u'у': u'u',
+                          u'ф': u'f',
+                          u'х': u'h',
+                          u'ц': u'ts',
+                          u'ч': u'ch',
+                          u'ш': u'sh',
+                          u'щ': u'sch',
+                          u'ь': u'',
+                          u'ю': u'yu',
+                          u'я': u'ya'}
 
     translit_string = ""
 
@@ -137,8 +150,8 @@ def transliterate(string):
             char = lower_case_letters[char]
         elif char in capital_letters.keys():
             char = capital_letters[char]
-            if len(string) > index+1:
-                if string[index+1] not in lower_case_letters.keys():
+            if len(string) > index + 1:
+                if string[index + 1] not in lower_case_letters.keys():
                     char = char.upper()
             else:
                 char = char.upper()
