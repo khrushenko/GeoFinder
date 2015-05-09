@@ -7,7 +7,7 @@ import func
 
 class TestURL(unittest.TestCase):
     def test_getLinks(self):
-        links = func.getLinks("../rss.xml", "rss")
+        links = func.getLinks("rss.xml", "rss")
         self.assertNotEqual(links, [])
         links = func.getLinks("rss.xml", "invalid")
         self.assertEqual(links, [])
@@ -36,7 +36,13 @@ class TestURL(unittest.TestCase):
 
     def test_writeCityToXml(self):
         list = {'Kyiv': 1}
-        testFile = 'test.xml'
+        testFile = 'Tests/test.xml'
         func.writeCityToXml(open(testFile, "wt"), list)
         self.assertEqual(open(testFile, 'r').read(),
-                         '<?xml version="1.0" ?><CityList><city><name>Kyiv</name><count>1</count></city></CityList>')
+                         '<?xml version="1.0" ?><CityList><city>'
+                         '<name>Kyiv</name><count>1</count></city></CityList>')
+
+    def test_findGeo(self):
+        results = {}
+        func.findGeo([], [], results)
+        self.assertEqual(results, {})
