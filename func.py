@@ -3,6 +3,22 @@
 import urllib2, time, email.utils
 from xml.dom.minidom import *
 
+def findGeo(rss, vocab, results):
+    for chanel in rss:
+        xml = parseString(chanel)
+        items = xml.getElementsByTagName("item")
+        for item in items:
+            if isLastDay(item.getElementsByTagName("pubDate")[0].childNodes[0].nodeValue):
+                title = item.getElementsByTagName("title")[0].childNodes[0].nodeValue
+                for city in vocab:
+                    if city in title:
+                        key = str(transliterate(city))
+                        if key in results:
+                            count = results[key]+1
+                        else:
+                            count = 1
+                        results.update({key: count})
+
 # Відкриває XML-файл і повертає список текстових значень.
 def getLinks(filename, tag):
     try:
@@ -16,14 +32,14 @@ def getLinks(filename, tag):
     return ret
 
 # Відкриває отриману URL і повертає її вміст.
-def openURL(url):
+def openURL(url, rss):
     try:
         temp = urllib2.urlopen(url)
         html = temp.read()
         temp.close()
     except:
-        html = "Error url"
-    return html
+        html = "Error URL"
+    rss.append(html)
 
 # Записує у файл в форматі XML вміст списку.
 def writeCityToXml(file, list):

@@ -1,25 +1,33 @@
 # -*- coding: utf-8 -*-
 from func import *
+import gevent
 
-# Підготовка списку посилань для обробки.
 urlsFile = "rss.xml"
 urls = getLinks(urlsFile, "rss")
 vocab = unicode(open('vocab.txt', 'r').read(), "utf-8").split(';')
+rss = []
 results = {}
-for url in urls:
-    xml = parseString(openURL(url))
-    items = xml.getElementsByTagName("item")
-    for item in items:
-        if isLastDay(item.getElementsByTagName("pubDate")[0].childNodes[0].nodeValue):
-            title = item.getElementsByTagName("title")[0].childNodes[0].nodeValue
-            for city in vocab:
-                # print title
-                if city in title:
-                    key = str(transliterate(city))
-                    if key in results:
-                        count = results[key]+1
-                    else:
-                        count = 1
-                    results.update({key: count})
-print results
+
+print "Choose method:\n1 - Without Gevent\n2 - With Gevent"
+print "Your choice:"
+method = raw_input()
+
+if method == '1':
+    startTime = time.time()
+    for url in urls:
+        openURL(url, rss)
+    findGeo(rss, vocab,results)
+if method == '2':
+    startTime = time.time()
+    coroutine = []
+    for url in urls:
+        coroutine.append(gevent.spawn(openURL, url, rss))
+    gevent.joinall(coroutine)
+    findGeo(rss, vocab, results)
+
+print('Time of program work is %s seconds' % (time.time() - startTime))
+
+findGeo(rss, results, vocab)
 writeCityToXml(open("out.xml", "wt"), results)
+
+print results
